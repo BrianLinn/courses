@@ -1,0 +1,143 @@
+---
+title: "Practical Machine Learning Course Project"
+author: "Brian Linn"
+date: "January 24, 2017"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+remove(list = ls(all.names = TRUE))
+library(rattle)
+library(caret)
+library(leaps)
+library(Hmisc)
+library(randomForest)
+library(rpart)
+library(gbm)
+library(splines)
+library(parallel)
+library(plyr)
+```
+
+###Executive Summary
+The goal of this analysis is to develop an algorithm which can correctly predict the manner in which a person performed an exercise. To do this, the analysis relis upon two data sets provided by:
+
+Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+
+The datasets include 160 variables detailing various measurements taken throughout the day by electronic devices worn by the study subjects. Through careful analysis and curation of the provided data, this research effort successfully produced an algorithm utilizing a random forest predictive model that accurately predicted the classe, or manner of performance, for 20 test observations.
+
+###Input Data
+In order to begin the analysis, the data must be loaded into a location that the code can access. The data load required some preliminary analysis to determine which characters were utilized to clasify missing or null values. The code specifically accounts for the missing values in both text and calculated fields. The training data set will be further divided into training and validation sets, while the testing set will be stored for use in the final predictive analysis.
+```{r dataImport}
+#Store the URLs for the files to be analyzed
+#The data will be placed in memory and not saved to the local machine
+urlTrain <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+urlTest <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+#Read the training and test data sets
+buildData <- read.csv(urlTrain, na.strings = c("NA", "#DIV/0", ""))
+testingFinal <- read.csv(urlTest, na.strings = c("NA", "#DIV/0", ""))
+```
+
+###Exploratory Analysis
+There are 160 variables in the dataset, and some may prove more likely to correlate to the outcome to be measured. In order to determine which variables should be included and which should not, the data will be inspected for variables near zero variance - these variables will be excluded. Additional exclusions will include any columns where more than 65% of the data is missing. Finally, information such as id columns and timestamps will be removed from the final dataset in order to make the data easier to interpret and analyze.
+```{r dataPreparation}
+#Remove the variables with mostly missing data
+buildData <- buildData[, (colSums(is.na(buildData))/nrow(buildData) < 0.65) == TRUE]
+testingFinalSmall <- testingFinal[, names(testingFinal) %in% names(buildData)]
+testingFinalSmall$problem_id <-  testingFinal$problem_id
+dim(buildData) #19622 60 - removed 100 variables
+dim(testingFinalSmall) #20 60 - removed 100 variables
+
+#Remove the id and time-stamp variables
+buildData <- buildData[, 8:ncol(buildData)]
+testingFinalSmall <- testingFinalSmall[, 8:ncol(testingFinalSmall)]
+dim(buildData) #19622 53 - removed 7 variables
+dim(testingFinalSmall) #20 53 - removed 7 variables
+
+#Check the data for any near-zero variance variables
+nzVars <- nearZeroVar(buildData, saveMetrics = TRUE)
+nzVars
+```
+The near zero-variance output indicates that none of the remaining variables show no variance, so none of these variables will be exclusive
+
+Finally, a check is run to ensure that the final testing data and traininig data contain the same variables, save for the one being predicted.
+```{r verifyDataIntegrity}
+identical(names(buildData[, -53]), names(testingFinalSmall[, -53]))
+```
+With confirmation that the data sets are identical, the analysis now moves into building the the predictive algorithm.
+
+###Algortihm
+The algorithm will require training and testing data, and to this end, the training data provided will be divided into two data sets, with 70% dedicated to training, and the remainder held over for testing the algorithm.
+```{r dataSets}
+#Divide the training data into traininig and validation(testing) data sets
+set.seed(1234)
+inTrain <- createDataPartition(y = buildData$classe,
+                               p = 0.7,
+                               list = FALSE)
+training <- buildData[inTrain, ]
+testing <- buildData[-inTrain, ]
+```
+
+Because the analysis is limited to one dataset, all models utilize holdout cross validation with k set to 2 in order to further improve the accuracy of the predictive model outcome.
+
+The first model fits a classification tree to the data.
+```{r classificationTreeAnalysis}
+#Fit a model with classification trees 
+fitRpart <- train(classe ~ ., 
+                  data = training, 
+                  method = "rpart", 
+                  trControl = trainControl(method='cv', number = 2))
+```
+
+The second model utilizes the gradient boosting technique to model the data.
+```{r gbmAnalysis}
+#Fit a model with gradient boosting
+fitGbm <- train(classe ~ ., 
+                data = training, 
+                method = "gbm",
+                verbose = F,
+                trControl = trainControl(method='cv', number = 2))
+```
+
+Finally, a random forest model is fitted to the data.
+```{r randomForestAnalysis}
+#Fit a model with random forest
+fitRf <- randomForest(classe ~ ., 
+                      data = training,
+                      method = 'rf',
+                      trControl = trainControl(method='cv', number = 2))
+```
+
+###Predictive Analysis
+With the three models now available for use in prediction, the testing data set aside was now input into the the prediction function to develop predictive outcomes for each model. The accuracy of each predictive model was then stored in a variable for further use.
+```{r predictionTraining}
+#Classification Tree
+predRpart <- predict(fitRpart, newdata = testing)
+accRPart <- round(confusionMatrix(predRpart, testing$classe)[[3]][[1]], 4) *100
+
+#Gradient Boosting
+predGbm <- predict(fitGbm, newdata = testing)
+accGbm <- round(confusionMatrix(predGbm, testing$classe)[[3]][[1]], 4) *100
+
+#Random Forest
+predRf <- predict(fitRf, newdata = testing)
+accRf <- round(confusionMatrix(predRf, testing$classe)[[3]][[1]], 4) *100
+
+accAll <- data.frame(Model = c("Classification Tree", "Gradient Boosting", "Random Forest"), 
+           Accuracy = c(accRPart, accGbm, accRf))
+accAll
+```
+As the output above shows, the gradient boosting and random forest outperformed the classification by a non-trivial percentage. The classification tree in fact showed worse performance than a coin flip, so without further tuning that method was abandoned. The gradient boosting worked well, but with near 99% accuracy, the random forest is crowned champion by this analysis.
+
+###Evaluation
+With the algorithm performing so well on the training data, there was some concer about overfitting. However, when applied to the original testing data, all of the predicted outcomes were accurate, so the random forest model performed as well or better than expected on the test dataset than it did with the training data. 
+```{r predictionTesting}
+#Random Forest Testing
+predTest <- predict(fitRf, newdata = testingFinalSmall)
+predTest
+data.frame(Problem = testingFinalSmall$problem_id, Prediction = predTest)
+```
+
+The output from the predictive model was input into the automatic grader for the course, and all of the outcomes were verified to be accurate.
