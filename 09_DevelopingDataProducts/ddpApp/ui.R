@@ -11,6 +11,7 @@ library(shiny)
 # One named ui.R (for user interface) controls how it looks.
 # One named server.R that controls what it does.
 
+###############################################################################
 #General Example
 # shinyUI(fluidPage(
 #         titlePanel("Data Science FTW!"),
@@ -24,6 +25,7 @@ library(shiny)
 #         )
 # ))
 
+###############################################################################
 #html tag examples
 # shinyUI(pageWithSidebar(
 #         headerPanel("Illustrating markup"),
@@ -42,6 +44,7 @@ library(shiny)
 #         )
 # ))
 
+###############################################################################
 ## Illustrating inputs ui.R
 # shinyUI(pageWithSidebar(
 #         headerPanel("Illustrating inputs"),
@@ -64,6 +67,7 @@ library(shiny)
 #         )
 # ))
 
+###############################################################################
 # #Adding an input and output function
 # shinyUI(fluidPage(
 #         titlePanel("Slider App"),
@@ -79,6 +83,7 @@ library(shiny)
 #         )
 # ))
 
+###############################################################################
 # #Apps with inputs
 # library(shiny)
 # shinyUI(fluidPage(
@@ -102,6 +107,7 @@ library(shiny)
 #         )
 # ))
 
+###############################################################################
 # #Apps with reactive expressions
 # library(shiny)
 # shinyUI(fluidPage(
@@ -123,6 +129,7 @@ library(shiny)
 #         )
 # ))
 
+###############################################################################
 # #Tabs
 # library(shiny)
 # shinyUI(fluidPage(
@@ -144,21 +151,33 @@ library(shiny)
 #         )
 # )
 
+###############################################################################
 #Interactive Graphics
-library(shiny)
-shinyUI(fluidPage(
-        titlePanel("Visualize Many Models"),
-        sidebarLayout(
-                sidebarPanel(
-                        h3("Slope"),
-                        textOutput("slopeOut"),
-                        h3("Intercept"),
-                        textOutput("intOut")
-                ),
-                mainPanel(
-                        plotOutput("plot1", brush = brushOpts(
-                                id = "brush1"
-                        ))
-                )
+# library(shiny)
+# shinyUI(fluidPage(
+#         titlePanel("Visualize Many Models"),
+#         sidebarLayout(
+#                 sidebarPanel(
+#                         h3("Slope"),
+#                         textOutput("slopeOut"),
+#                         h3("Intercept"),
+#                         textOutput("intOut")
+#                 ),
+#                 mainPanel(
+#                         plotOutput("plot1", brush = brushOpts(
+#                                 id = "brush1"
+#                         ))
+#                 )
+#         )
+# ))
+
+###############################################################################
+#Quiz
+shinyUI(pageWithSidebar(  
+        headerPanel("Example plot"),  
+        sidebarPanel(    
+                sliderInput('mu', 'Guess at the mu',value = 70, min = 60, max = 80, step = 0.05,)  ), 
+        mainPanel(    
+                plotOutput('newHist')  
         )
 ))

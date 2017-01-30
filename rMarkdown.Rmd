@@ -1,0 +1,81 @@
+---
+title: "Week2"
+author: "Brian Linn"
+date: "January 30, 2017"
+output: ioslides_presentation
+---
+
+##Slide Title
+bullet points and subpoints  
+`1. first point`<br>
+&nbsp;&nbsp;&nbsp;&nbsp;`a) sub-sub-point`  
+
+bulleted list
+
+- bullet1
+- bullet2
+
+numbered list 
+
+1. one  
+2. two  
+
+a. lettera  
+b. letterb  
+
+##Another Slide
+on-click bullet points with > followed by -  
+
+>- point1  
+>- point2  
+>- point3  
+
+plain text  
+*italic text* - single asterisk quotes  
+**bold text** - double asterick quotes  
+
+hyperlink  
+[link](http://google.com)  
+
+code in single quotes  
+'r code in single quotes'  
+`codey code code`
+
+##Another Slide
+code chunk
+``` {r}
+#code goes here
+x <- 10
+y <- 12
+x + y
+```
+
+##Another Slide
+hide the code from the output
+```{r hideCode, echo = FALSE}
+#this code will not show, but the output will
+s <- 22
+d <- 22
+s + d
+```
+
+hide input and output
+```{r includeNone, include = FALSE}
+#input and output are hidden
+library(ggplot2)
+```
+
+***
+Slide without a title
+
+
+
+##Another Slide
+###Heading1
+####Heading2
+
+
+##Plot Slide  
+```{r plot, echo = FALSE, fig.align='center', fig.cap='My Awesome Figure'}
+plot(mtcars$wt, mtcars$mpg, xlab = "Weight", ylab = "MPG")
+```

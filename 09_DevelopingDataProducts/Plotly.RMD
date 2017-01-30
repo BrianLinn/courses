@@ -1,0 +1,135 @@
+---
+title: "Plotly"
+author: "Brian Linn"
+date: "January 27, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r plotlyScatterplot}
+library(plotly)
+plot_ly(mtcars, x = ~wt, y = ~mpg, type = "scatter", mode = "markers")
+names(mtcars)
+```
+
+```{r plotlyScatterplotColorsDiscrete}
+library(plotly)
+plot_ly(mtcars, x = ~wt, y = ~mpg, type = "scatter", mode = "markers", color = ~factor(cyl))
+```
+
+```{r plotlyScatterplotColorsContinuous}
+library(plotly)
+plot_ly(mtcars, x = ~wt, y = ~mpg, type = "scatter", mode = "markers", color = ~disp)
+```
+
+```{r plotlyScatterplotSizing}
+library(plotly)
+plot_ly(mtcars, x = ~wt, y = ~mpg, type = "scatter", 
+        mode = "markers", color = ~factor(cyl), size = ~hp)
+```
+
+```{r plotly3DScatterplot}
+library(plotly)
+set.seed(2016-07-21)
+temp <- rnorm(100, mean = 30, sd = 5)
+pressure <- rnorm(100)
+dtime <- 1:100
+plot_ly(x = ~temp, y = ~pressure, z = ~dtime, type = "scatter3d", 
+        mode = "markers", color = ~temp)
+```
+
+```{r plotlylineGraph}
+library(plotly)
+data(airmiles)
+plot_ly(x = ~time(airmiles), y = ~airmiles, type = "scatter", 
+        mode = "lines")
+
+```
+
+```{r plotlymultiLineGraph}
+library(plotly)
+library(dplyr)
+library(tidyr)
+data(EuStockMarkets)
+stocks <- as.data.frame(EuStockMarkets) %>%
+        gather(index, price) %>%
+        mutate(time = rep(time(EuStockMarkets), 4))
+
+plot_ly(stocks, x = ~time, y = ~price, color = ~index,
+        type = "scatter", mode = "lines")
+```
+
+```{r plotlyHistogram}
+library(plotly)
+plot_ly(x = ~precip, type = "histogram")
+```
+
+
+```{r plotlyBoxplot}
+library(plotly)
+plot_ly(iris, y = ~Petal.Length, color = ~Species, type = "box")
+```
+
+
+```{r plotlyHeatmap}
+library(plotly)
+terrain1 <- matrix(rnorm(100 * 100), nrow = 100, ncol = 100)
+plot_ly(z = ~terrain1, type = "heatmap")
+```
+
+```{r plotly3dSurface}
+library(plotly)
+terrain2 <- matrix(sort(rnorm(100 * 100)), nrow = 100, ncol = 100)
+plot_ly(z = terrain2, type = "surface")
+```
+
+
+```{r plotlyChoroplethMaps}
+library(plotly)
+# Create data frame
+state_pop <- data.frame(State = state.abb, Pop = as.vector(state.x77[,1]))
+# Create hover text
+state_pop$hover <- with(state_pop, paste(State, '<br>', "Population:", Pop))
+# Make state borders white
+borders <- list(color = toRGB("red"))
+# Set up some mapping options
+map_options <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('white')
+)
+#make the chloropleth
+plot_ly(state_pop, z = ~Pop, text = ~hover, locations = ~State, 
+        type = 'choropleth', locationmode = 'USA-states', 
+        color = ~Pop, colors = 'Blues', marker = list(line = borders)) %>%
+  layout(title = 'US Population in 1975', geo = map_options)
+#above does not seem to actually produce any output - unless opened in a browser as html
+# library(choroplethrMaps)
+# data("state.regions")
+# data("df_pop_state")
+# state_choropleth(df_pop_state,
+#                  title      = "2012 Population Estimates",
+#                  legend     = "Population",
+#                  num_colors = 1,
+#                  zoom       = c("california", "washington", "oregon"))
+```
+
+```{r plotlyGplot}
+set.seed(100)
+d <- diamonds[sample(nrow(diamonds), 1000), ]
+p <- ggplot(data = d, aes(x = carat, y = price)) +
+        geom_point(aes(text = paste("Clarity:", clarity)), size = 4) +
+        geom_smooth(aes(colour = cut, fill = cut)) +
+        facet_wrap(~cut)
+
+(gg <- ggplotly(p))
+```
+
+
+
+
+

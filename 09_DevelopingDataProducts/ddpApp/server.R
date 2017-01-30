@@ -1,4 +1,5 @@
 library(shiny)
+###############################################################################
 # shinyServer(
 #         function(input, output) {
 #                 output$text1 = renderText(input$slider2)
@@ -13,6 +14,7 @@ library(shiny)
 #         }
 # )
 
+###############################################################################
 # #Apps with inputs
 # shinyServer(function(input, output) {
 #         output$plot1 <- renderPlot({
@@ -32,6 +34,7 @@ library(shiny)
 #         })
 # })
 
+###############################################################################
 # #Apps with reactive expressions
 # library(shiny)
 # shinyServer(function(input, output){
@@ -79,6 +82,7 @@ library(shiny)
 #         })
 # })
 
+###############################################################################
 # #Tabs
 # library(shiny)
 # shinyServer(function(input, output){
@@ -87,38 +91,56 @@ library(shiny)
 #         output$out3 <- renderText(input$box3)
 # })
 
-#Interactive Graphics
-library(shiny)
-shinyServer(function(input, output){
-        model <- reactive({
-                brushed_data <- brushedPoints(trees, input$brush1,
-                                              xvar = "Girth", yvar = "Volume")
-                if(nrow(brushed_data) < 2){
-                        return(NULL)
-                }
-                lm(Volume ~ Girth, data = brushed_data)
-        })
-        output$slopeOut <- renderText({
-                if(is.null(model())){
-                        "No Model Found"
-                } else {
-                        model()[[1]][2]
-                }
-        })
-        output$intOut <- renderText({
-                if(is.null(model())){
-                        "No Model Found"
-                } else {
-                        model()[[1]][1]
-                }
-                
-        })
-        output$plot1 <- renderPlot({
-                plot(trees$Girth, trees$Volume, xlab = "Girth",
-                     ylab = "Volume", main = "Tree Measurements",
-                     cex = 1.5, pch = 16, bty = "n")
-                if(!is.null(model())){
-                        abline(model(), col = "blue", lwd = 2)
-                }
-        })
-})
+###############################################################################
+# #Interactive Graphics
+# library(shiny)
+# shinyServer(function(input, output){
+#         model <- reactive({
+#                 brushed_data <- brushedPoints(trees, input$brush1,
+#                                               xvar = "Girth", yvar = "Volume")
+#                 if(nrow(brushed_data) < 2){
+#                         return(NULL)
+#                 }
+#                 lm(Volume ~ Girth, data = brushed_data)
+#         })
+#         output$slopeOut <- renderText({
+#                 if(is.null(model())){
+#                         "No Model Found"
+#                 } else {
+#                         model()[[1]][2]
+#                 }
+#         })
+#         output$intOut <- renderText({
+#                 if(is.null(model())){
+#                         "No Model Found"
+#                 } else {
+#                         model()[[1]][1]
+#                 }
+#                 
+#         })
+#         output$plot1 <- renderPlot({
+#                 plot(trees$Girth, trees$Volume, xlab = "Girth",
+#                      ylab = "Volume", main = "Tree Measurements",
+#                      cex = 1.5, pch = 16, bty = "n")
+#                 if(!is.null(model())){
+#                         abline(model(), col = "blue", lwd = 2)
+#                 }
+#         })
+# })
+
+###############################################################################
+#Quiz
+library(UsingR)
+data(galton)
+
+shinyServer(  
+        function(input, output) {    
+                output$myHist <- renderPlot({      
+                        hist(galton$child, xlab='child height', col='lightblue',main='Histogram')      
+                        mu <- input$mu      
+                        lines(c(mu, mu), c(0, 200),col="red",lwd=5)      
+                        mse <- mean((galton$child - mu)^2)      
+                        text(63, 150, paste("mu = ", mu))      
+                        text(63, 140, paste("MSE = ", round(mse, 2)))      
+                })      }
+)
