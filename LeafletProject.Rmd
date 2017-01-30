@@ -1,0 +1,40 @@
+---
+title: "Developing Data Projects Leaflet Project"
+author: "Brian Linn"
+date: "January 30, 2017"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+##Map of California Missions
+``` {r simpleMap, message = FALSE, comment = ""}
+library(leaflet)
+library(maps)
+library(RColorBrewer)
+
+#import a map of missions
+#assumes a map if mission locations is available in the working directory
+missions <- read.csv("missions.csv")
+mapStates <- map("state", fill = TRUE,
+                 plot = FALSE,
+                 region = c('california'))
+
+myIcon <- makeIcon(
+        iconUrl = "./assets/img/mission.png",
+        iconWidth = 31*215/230, iconHeight = 31,
+        iconAnchorX = 31*215/230/2, iconAnchorY = 16
+)
+
+my_map <- leaflet() %>%
+        addTiles() %>%
+        addPolygons(data = mapStates) %>%
+        addMarkers(data = missions, 
+                   popup = missions$Mission, 
+                   clusterOptions = markerClusterOptions(),
+                   icon = myIcon) %>%
+        setView(lng = missions[6, 3], lat = missions[6, 2], zoom = 8)
+my_map
+```
