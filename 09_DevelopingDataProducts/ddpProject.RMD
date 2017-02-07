@@ -1,0 +1,30 @@
+---
+title: "R Markdown Presentation & Plotly"
+author: "Brian Linn"
+date: "February 7, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(plotly)
+data(cars)
+```
+
+## R Markdown
+
+The code chunk below provides a quick snapshot of the 'cars' data which details the stopping distance of vehicles at various speeds.
+
+```{r cars}
+head(cars, 4)
+summary(cars)
+```
+
+## Including Plots with Ploty
+
+A plot can be embedded with the plotly function. In this plot, the distance to stop is plotted as function of speed. To highlight the fact that higher speeds result in longer stopping distances, the size of the plot points is governed by the speed, and the color of the plot points is set by the stopping distance.
+
+```{r pressure, echo=TRUE}
+plot_ly(cars, x = ~speed, y = ~dist, type = "scatter", mode = "markers", 
+        color = ~dist, size = ~speed)
+```
