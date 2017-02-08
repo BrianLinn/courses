@@ -84,12 +84,12 @@ library(shiny)
 
 ###############################################################################
 # #Tabs
-# library(shiny)
-# shinyServer(function(input, output){
-#         output$out1 <- renderText(input$box1)
-#         output$out2 <- renderText(input$box2)
-#         output$out3 <- renderText(input$box3)
-# })
+library(shiny)
+shinyServer(function(input, output){
+        output$out1 <- renderText(input$box1)
+        output$out2 <- renderText(input$box2)
+        output$out3 <- renderText(input$box3)
+})
 
 ###############################################################################
 # #Interactive Graphics
@@ -116,7 +116,7 @@ library(shiny)
 #                 } else {
 #                         model()[[1]][1]
 #                 }
-#                 
+# 
 #         })
 #         output$plot1 <- renderPlot({
 #                 plot(trees$Girth, trees$Volume, xlab = "Girth",
@@ -129,18 +129,18 @@ library(shiny)
 # })
 
 ###############################################################################
-#Quiz
-library(UsingR)
-data(galton)
-
-shinyServer(  
-        function(input, output) {    
-                output$myHist <- renderPlot({      
-                        hist(galton$child, xlab='child height', col='lightblue',main='Histogram')      
-                        mu <- input$mu      
-                        lines(c(mu, mu), c(0, 200),col="red",lwd=5)      
-                        mse <- mean((galton$child - mu)^2)      
-                        text(63, 150, paste("mu = ", mu))      
-                        text(63, 140, paste("MSE = ", round(mse, 2)))      
-                })      }
-)
+# #Quiz
+# library(UsingR)
+# data(galton)
+# 
+# shinyServer(  
+#         function(input, output) {    
+#                 output$myHist <- renderPlot({      
+#                         hist(galton$child, xlab='child height', col='lightblue',main='Histogram')      
+#                         mu <- input$mu      
+#                         lines(c(mu, mu), c(0, 200),col="red",lwd=5)      
+#                         mse <- mean((galton$child - mu)^2)      
+#                         text(63, 150, paste("mu = ", mu))      
+#                         text(63, 140, paste("MSE = ", round(mse, 2)))      
+#                 })      }
+# )

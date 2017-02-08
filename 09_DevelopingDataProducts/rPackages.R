@@ -82,3 +82,34 @@ plot(p)
 # on new classes
 # As new data types and concepts are created, classes/methods provide a way for
 #you to develop an intuitive interface to those data/concepts for users
+
+
+#Quiz
+#1 - explicit software license
+#2
+install.packages("pryr")
+library(pryr)
+ftype(colSums)
+ftype(predict)
+ftype(dgamma)
+showMethods(show)
+getMethod(show)
+
+
+library(plotly)
+f <- list(
+        family = "Courier New, monospace",
+        size = 18,
+        color = "#7f7f7f"
+)
+x <- list(
+        title = "STEVREGSDF",
+        titlefont = f
+)
+y <- list(
+        title = "y Axis",
+        titlefont = f
+)
+p <- plot_ly(x = rnorm(10), y = rnorm(10), mode = "markers") %>%
+        layout(xaxis = x, yaxis = y)
+p
