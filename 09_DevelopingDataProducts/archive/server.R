@@ -7,31 +7,30 @@ library(caret)
 
 #Load primary data
 data(diamonds)
+#Take sample of data to make plotting faster
+df <- diamonds[sample(nrow(diamonds), (.5 * nrow(diamonds)), replace = FALSE, prob = NULL), ]
+df$size <- df$x * df$y * df$z
 diamonds$size <- diamonds$x * diamonds$y * diamonds$z
-smallDiamonds <- diamonds[sample(nrow(diamonds), 
-                                 (.1 * nrow(diamonds)), 
-                                 replace = FALSE, prob = NULL), ]
-smallDiamonds$size <- smallDiamonds$x * smallDiamonds$y * smallDiamonds$z
 
 #Begin the Shiny Server Function
 shinyServer(function(input, output){
         #Create training and testing data for machine learning predictions
-        inTrain <- createDataPartition(y = smallDiamonds$price, p = 0.7, list = FALSE)
-        training <- smallDiamonds[inTrain, ]
-        testing <- smallDiamonds[-inTrain, ]
+        inTrain <- createDataPartition(y = diamonds$price, p = 0.7, list = FALSE)
+        training <- diamonds[inTrain, ]
+        testing <- diamonds[-inTrain, ]
         
         #Create models based on the training data
         fitColor <-     lm(price ~ carat + color,
-                           data = smallDiamonds)
+                           data = df)
         
         fitClarity <-   lm(price ~ carat + clarity,
-                           data = smallDiamonds)
+                           data = df)
         
         fitCut <-       lm(price ~ carat + cut,
-                           data = smallDiamonds)
+                           data = df)
         
         fitAll <-       lm(price ~ carat + color + clarity + cut,
-                           data = smallDiamonds)
+                           data = df)
         
         #Create predictions based on the user input
         predColor <- reactive({
@@ -67,7 +66,7 @@ shinyServer(function(input, output){
         })
         output$cutPricePlot <- renderPlot({
                 colorInput <- input$selectedPointColor
-                gCut <- ggplot(smallDiamonds, aes(x = cut, y = (price/carat)))
+                gCut <- ggplot(diamonds, aes(x = cut, y = (price/carat)))
                 if(input$selectedPointColor == "Color"){
                         gCut <- gCut + geom_point(aes(size = carat,
                                        colour = factor(color))) +
@@ -105,7 +104,7 @@ shinyServer(function(input, output){
         })
         output$clarityPricePlot <- renderPlot({
                 colorInput <- input$selectedPointColor
-                gClarity <- ggplot(smallDiamonds, aes(x = clarity, y = (price/carat)))
+                gClarity <- ggplot(diamonds, aes(x = clarity, y = (price/carat)))
                 if(input$selectedPointColor == "Color"){
                         gClarity <- gClarity + geom_point(aes(size = carat,
                                                               colour = factor(color))) +
@@ -143,7 +142,7 @@ shinyServer(function(input, output){
         })
         output$sizePricePlot <- renderPlot({
                 colorInput <- input$selectedPointColor
-                gSize <- ggplot(smallDiamonds, aes(x = size, y = (price/carat)))
+                gSize <- ggplot(diamonds, aes(x = size, y = (price/carat)))
                 if(input$selectedPointColor == "Color"){
                         gSize <- gSize + geom_point(aes(size = carat,
                                                         colour = factor(color))) +
@@ -181,7 +180,7 @@ shinyServer(function(input, output){
         })
         output$colorPricePlot <- renderPlot({
                 colorInput <- input$selectedPointColor
-                gColor <- ggplot(smallDiamonds, aes(x = color, y = (price/carat)))
+                gColor <- ggplot(diamonds, aes(x = color, y = (price/carat)))
                 if(input$selectedPointColor == "Color"){
                         gColor <- gColor + geom_point(aes(size = carat,
                                                       colour = factor(color))) +
@@ -222,7 +221,9 @@ shinyServer(function(input, output){
                 colorInput <- input$selectedColor
                 cutInput <- input$selectedCut
                 clarityInput <- input$selectedClarity
-                g <- ggplot(smallDiamonds, aes(x = carat, y = price))
+                #points(caratInput, predColor(), col = "red", pch = 16, cex = 2)
+                # points(caratInput, predClarity(), col = "blue", pch = 16, cex = 2)
+                g <- ggplot(df, aes(x = carat, y = price))
                 if(input$selectedPointColor == "Color"){
                         g <- g + geom_point(aes(colour = factor(color)))
                 }
@@ -241,7 +242,7 @@ shinyServer(function(input, output){
                 g <- g + 
                         xlab("Carats") +
                         ylab("Price") +
-                        scale_y_continuous(limits = c(0, max(range(smallDiamonds$price)))) +
+                        scale_y_continuous(limits = c(0, max(range(df$price)))) +
                         xlim(c(0, 3.5))
                 if(input$selectedPointColor == "Color"){
                         g <- g + labs(colour = "Color")
@@ -286,3 +287,5 @@ shinyServer(function(input, output){
         })
         
 })
+
+?geom_point

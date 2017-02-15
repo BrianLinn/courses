@@ -109,47 +109,47 @@ library(shiny)
 
 ###############################################################################
 # #Apps with reactive expressions
-# library(shiny)
-# shinyUI(fluidPage(
-#         titlePanel("Predict Horespower from MPG"),
-#         sidebarLayout(
-#                 sidebarPanel(
-#                         sliderInput("sliderMPG", "What is the MPG of the car?", 10, 35, value = 20),
-#                         checkboxInput("showModel1", "Show/Hide Model 1", value = TRUE),
-#                         checkboxInput("showModel2", "Show/Hide Model 2", value = TRUE),
-#                         submitButton("Submit")
-#                 ),
-#                 mainPanel(
-#                         plotOutput("plot1"),
-#                         h3("Predicted Horsepower from Model 1:"),
-#                         textOutput("pred1"),
-#                         h3("Predicted Horespower from Model 2:"),
-#                         textOutput("pred2")
-#                 )
-#         )
-# ))
+library(shiny)
+shinyUI(fluidPage(
+        titlePanel("Predict Horespower from MPG"),
+        sidebarLayout(
+                sidebarPanel(
+                        sliderInput("sliderMPG", "What is the MPG of the car?", 10, 35, value = 20),
+                        checkboxInput("showModel1", "Show/Hide Model 1", value = TRUE),
+                        checkboxInput("showModel2", "Show/Hide Model 2", value = TRUE),
+                        submitButton("Submit")
+                ),
+                mainPanel(
+                        plotOutput("plot1"),
+                        h3("Predicted Horsepower from Model 1:"),
+                        textOutput("pred1"),
+                        h3("Predicted Horespower from Model 2:"),
+                        textOutput("pred2")
+                )
+        )
+))
 
 ###############################################################################
 # #Tabs
-library(shiny)
-shinyUI(fluidPage(
-        titlePanel("Tabs!"),
-        sidebarLayout(
-                sidebarPanel(
-                        textInput("box1", "Enter Tab 1 Text:", value = "Tab 1!"),
-                        textInput("box2", "Enter Tab 2 Text:", value = "Tab 2!"),
-                        textInput("box3", "Enter Tab 3 Text:", value = "Tab 3!")
-                ),
-                mainPanel(
-                        tabsetPanel(type = "tabs",
-                                    tabPanel("Tab 1", br(), textOutput("out1")),
-                                    tabPanel("Tab 2", br(), textOutput("out2")),
-                                    tabPanel("Tab 3", br(), textOutput("out3"))
-                                        )
-                                )
-                )
-        )
-)
+# library(shiny)
+# shinyUI(fluidPage(
+#         titlePanel("Tabs!"),
+#         sidebarLayout(
+#                 sidebarPanel(
+#                         textInput("box1", "Enter Tab 1 Text:", value = "Tab 1!"),
+#                         textInput("box2", "Enter Tab 2 Text:", value = "Tab 2!"),
+#                         textInput("box3", "Enter Tab 3 Text:", value = "Tab 3!")
+#                 ),
+#                 mainPanel(
+#                         tabsetPanel(type = "tabs",
+#                                     tabPanel("Tab 1", br(), textOutput("out1")),
+#                                     tabPanel("Tab 2", br(), textOutput("out2")),
+#                                     tabPanel("Tab 3", br(), textOutput("out3"))
+#                                         )
+#                                 )
+#                 )
+#         )
+# )
 
 ###############################################################################
 #Interactive Graphics

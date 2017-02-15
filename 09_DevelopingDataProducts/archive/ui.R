@@ -1,7 +1,5 @@
-library(ggplot2)
+
 library(shiny)
-data(diamonds)
-diamonds$size <- diamonds$x * diamonds$y * diamonds$z
 shinyUI(navbarPage("Diamond Price Analysis",
                         tabPanel("Documentation",
                                  h2("Diamond Price Analysis"),
@@ -80,11 +78,11 @@ shinyUI(navbarPage("Diamond Price Analysis",
                                                      4.5,
                                                      value = 1),
                                          selectInput("selectedCut", "Select Cut", 
-                                                     choices = unique(as.character(diamonds$cut))),
+                                                     choices = unique(as.character(df$cut))),
                                          selectInput("selectedColor", "Select Color",
-                                                     choices = unique(as.character(diamonds$color))),
+                                                     choices = unique(as.character(df$color))),
                                          selectInput("selectedClarity", "Select Clarity",
-                                                     choices = unique(as.character(diamonds$clarity))),
+                                                     choices = unique(as.character(df$clarity))),
                                          submitButton("Submit")),
                                  mainPanel(
                                          h4("Predicted Price from Model: Price ~ Carats + Color"),
