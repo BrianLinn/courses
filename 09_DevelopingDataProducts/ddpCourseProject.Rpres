@@ -1,15 +1,16 @@
-Developing Data Products - Course Project - Shiny App
+Developing Data Products Course Project: Shiny
 ========================================================
 author: Brian Monedero Linn
 date: 02/15/2017
-autosize: true
 transition: linear
 css: custom.css
+width: 1920
+height: 1080
 
 Shiny Application
 ========================================================
 transition: rotate
-The application developed for this project is called 'Diamond Price Analysis'.   
+The application developed for this project is called ~~'Diamond Price Analysis'~~.   
 The analysis includes:
 - Documentation describing the function and use of the tool
 - Exploratory Analysis Visualizations
@@ -17,28 +18,39 @@ The analysis includes:
 
 Exploratory Analysis
 ========================================================
-transition:fade
+transition: fade
 The exploratory analysis allows the user to visualize the relationships between the price of a diamond and the various predictor data elements.
-```{r samplePlot}
+```{r samplePlot, echo = TRUE}
 library(ggplot2)
 data(diamonds)
 smallDiamonds <- diamonds[sample(nrow(diamonds), (.1 * nrow(diamonds)), replace = FALSE, prob = NULL), ]
 smallDiamonds$size <- smallDiamonds$x * smallDiamonds$y * smallDiamonds$z
 gCut <- ggplot(smallDiamonds, aes(x = cut, y = (price/carat))) + geom_point(aes(size = carat, colour = factor(clarity))) + scale_colour_discrete(name  = "Clarity") +
         scale_size_continuous(name  = "Carat") + xlab("Cut") + ylab("Price per Carat") 
+```
+
+
+Sample Visualization
+========================================================
+```{r plot, echo = FALSE}
 gCut
 ```
 
 Price Predictions
 ========================================================
 transition: zoom
+left: 30%
 The price predictions tool allows the user to manipulate a sample diamond's variable values. The application will display a predicted price for various models of the data based on the parameters input by the user.
-```{r, echo=FALSE}
 
-```
+***
+
+![alt text](pricePredictor.png)
 
 Accessing the Application
 ========================================================
 transition: zoom
 The application can be found at the following:
 [Developing Data Products - Course Project](https://blinn.shinyapps.io/ddpCourseProjectApp/)
+
+The code is available in github:
+[Brian's Github Repository](https://github.com/BrianLinn/courses/tree/gh-pages/09_DevelopingDataProducts/ddpCourseProjectApp)
