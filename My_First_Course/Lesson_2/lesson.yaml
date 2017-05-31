@@ -1,0 +1,25 @@
+- Class: meta
+  Course: My First Course
+  Lesson: Lesson 2
+  Author: Brian Monedero Linn
+  Type: Standard
+  Organization: Orangehill Consulting
+  Version: 2.4.2
+
+
+- Class: mult_question
+  Output: Which of these shapes has four sides?
+  AnswerChoices: Square;Circle;Hexagon
+  CorrectAnswer: Square
+  AnswerTests: omnitest(correctVal= 'Square')
+  Hint: Square
+
+- Class: figure
+  Output: This is a simple graph
+  Figure: fig1.R
+  FigureType: new
+
+- Class: figure
+  Output: I added a line!
+  Figure: fig2.R
+  FigureType: add

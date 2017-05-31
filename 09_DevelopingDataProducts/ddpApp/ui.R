@@ -109,25 +109,25 @@ library(shiny)
 
 ###############################################################################
 # #Apps with reactive expressions
-# library(shiny)
-# shinyUI(fluidPage(
-#         titlePanel("Predict Horespower from MPG"),
-#         sidebarLayout(
-#                 sidebarPanel(
-#                         sliderInput("sliderMPG", "What is the MPG of the car?", 10, 35, value = 20),
-#                         checkboxInput("showModel1", "Show/Hide Model 1", value = TRUE),
-#                         checkboxInput("showModel2", "Show/Hide Model 2", value = TRUE),
-#                         submitButton("Submit")
-#                 ),
-#                 mainPanel(
-#                         plotOutput("plot1"),
-#                         h3("Predicted Horsepower from Model 1:"),
-#                         textOutput("pred1"),
-#                         h3("Predicted Horespower from Model 2:"),
-#                         textOutput("pred2")
-#                 )
-#         )
-# ))
+library(shiny)
+shinyUI(fluidPage(
+        titlePanel("Predict Horespower from MPG"),
+        sidebarLayout(
+                sidebarPanel(
+                        sliderInput("sliderMPG", "What is the MPG of the car?", 10, 35, value = 20),
+                        checkboxInput("showModel1", "Show/Hide Model 1", value = TRUE),
+                        checkboxInput("showModel2", "Show/Hide Model 2", value = TRUE),
+                        submitButton("Submit")
+                ),
+                mainPanel(
+                        plotOutput("plot1"),
+                        h3("Predicted Horsepower from Model 1:"),
+                        textOutput("pred1"),
+                        h3("Predicted Horespower from Model 2:"),
+                        textOutput("pred2")
+                )
+        )
+))
 
 ###############################################################################
 # #Tabs
@@ -172,12 +172,12 @@ library(shiny)
 # ))
 
 ###############################################################################
-#Quiz
-shinyUI(pageWithSidebar(  
-        headerPanel("Example plot"),  
-        sidebarPanel(    
-                sliderInput('mu', 'Guess at the mu',value = 70, min = 60, max = 80, step = 0.05,)  ), 
-        mainPanel(    
-                plotOutput('newHist')  
-        )
-))
+# #Quiz
+# shinyUI(pageWithSidebar(  
+#         headerPanel("Example plot"),  
+#         sidebarPanel(    
+#                 sliderInput('mu', 'Guess at the mu',value = 70, min = 60, max = 80, step = 0.05,)  ), 
+#         mainPanel(    
+#                 plotOutput('newHist')  
+#         )
+# ))

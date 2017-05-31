@@ -1,0 +1,8 @@
+name: Publish Document
+title:
+account: rpubs
+server: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/248113/0f5446f1d93c4947b5c062d7f058a4fd
+bundleId: https://api.rpubs.com/api/v1/document/248113/0f5446f1d93c4947b5c062d7f058a4fd
+url: http://rpubs.com/Brian801/248113
+when: 1486577127.14081

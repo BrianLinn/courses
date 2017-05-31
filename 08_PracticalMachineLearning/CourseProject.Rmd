@@ -22,7 +22,7 @@ library(plyr)
 ```
 
 ###Executive Summary
-The goal of this analysis is to develop an algorithm which can correctly predict the manner in which a person performed an exercise. To do this, the analysis relis upon two data sets provided by:
+The goal of this analysis is to develop an algorithm which can correctly predict the manner in which a person performed an exercise. To do this, the analysis relies upon two data sets provided by:
 
 Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
 

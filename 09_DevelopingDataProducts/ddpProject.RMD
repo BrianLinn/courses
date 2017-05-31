@@ -1,0 +1,37 @@
+---
+title: "R Markdown Presentation & Plotly"
+author: "Brian Linn"
+date: "February 7, 2017"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(plotly)
+library(leaflet)
+data(cars)
+```
+
+## Including Plots with Ploty
+To highlight the fact that higher speeds result in longer stopping distances, the size of the plot points is governed by the speed, and the color of the plot points is set by the stopping distance.
+
+```{r pressure, echo=FALSE}
+#Set the display settings for the plot
+f <- list(
+  family = "Courier New, monospace",
+  size = 18,
+  color = "#7f7f7f"
+)
+x <- list(
+  title = "Speed",
+  titlefont = f
+)
+y <- list(
+  title = "Stopping Distance",
+  titlefont = f
+)
+p <- plot_ly(cars, x = ~speed, y = ~dist, type = "scatter", mode = "markers", 
+        color = ~dist, size = ~speed) %>%
+        layout(xaxis = x, yaxis = y)
+p
+```

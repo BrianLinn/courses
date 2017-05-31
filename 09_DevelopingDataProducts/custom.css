@@ -1,0 +1,12 @@
+.reveal section del {
+  color: green;
+}
+
+.section .reveal .state-background {
+    background: navy;}
+.section .reveal h1,
+.section .reveal p {
+    color: white;
+    position: relative;
+    top: 4%;}
+    
