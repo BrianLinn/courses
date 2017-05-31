@@ -1,0 +1,291 @@
+---
+title: "capstone_v1"
+author: "Brian Linn"
+date: "March 7, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#Clear the global environment
+remove(list = ls())
+
+#Download if necessary and set to required the libraries needed for the code
+if (!require(tidyverse)) {
+        install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+        require(tidyverse, quietly = TRUE)
+}
+
+if (!require(tm)) {
+        install.packages("tm", repos = "http://cran.us.r-project.org")
+        require(tm, quietly = TRUE)
+}
+
+if (!require(XML)) {
+        install.packages("XML", repos = "http://cran.us.r-project.org")
+        require(XML, quietly = TRUE)
+}
+
+if (!require(qdap)) {
+        install.packages("qdap", repos = "http://cran.us.r-project.org")
+        require(qdap, quietly = TRUE)
+}
+
+if (!require(dendextend)) {
+        install.packages("dendextend", repos = "http://cran.us.r-project.org")
+        require(dendextend, quietly = TRUE)
+}
+
+if (!require(RWeka)) {
+        install.packages("RWeka", repos = "http://cran.us.r-project.org")
+        require(RWeka, quietly = TRUE)
+}
+
+```
+
+###Unigram Analysis
+
+```{r unigram preparation}
+#Create a temporary file to house the downloaded data
+temp <- tempfile()
+
+#Store a file name for the data to be downloaded
+destfile="./data/temp.zip"
+
+#Store the file location in the fileUrl variable
+fileUrl <- "https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip"
+
+#Download the data - store in the working directory in a folder called 'data'
+if(!file.exists(destfile)){
+    res <- tryCatch(download.file("https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip",
+                              destfile="./data/temp.zip",
+                              method="auto"),
+                error=function(e) 1)
+            if(res!=1) load("./data/temp.zip") 
+}
+
+#unzip the compressed files
+zipFiles <- unzip("./data/temp.zip")
+
+#Store the pattern to search for - the 'en' will isolate english language files
+pattern <- "en"
+
+#Isolate the english language files for import
+zipFilesEn <- grep(pattern, zipFiles, value = TRUE)
+
+#Store the twitter, news, and blog file references
+zipFilesEnTwitter <- file(zipFilesEn[[1]]) 
+zipFilesEnNews <- file(zipFilesEn[[2]]) 
+zipFilesEnBlogs <- file(zipFilesEn[[3]]) 
+
+#Extract and subset the twitter data
+#swiftKeyDataTwitter <- readLines(zipFilesEnTwitter)
+swiftKeyDataBlogs <- readLines(zipFilesEnBlogs)
+swiftKeyData <- swiftKeyDataBlogs[seq(1, length(swiftKeyDataBlogs), by = 1000)]
+
+#Convert the data into a source for the corpus
+swiftDataSource <- VectorSource(swiftKeyData)
+
+#Create the volatile corpus from the data
+swiftCorp <- VCorpus(swiftDataSource)
+```
+
+```{r corpusAnalysis}
+#View the details of the corpus
+swiftCorp
+
+#view the metadata for the 15th document/tweet
+swiftCorp[[15]]
+
+#view the contents of the 15th document/tweet
+swiftCorp[[15]][1]
+swiftCorp[[15]]$content
+```
+
+```{r corpusCleanup}
+#Cleanup of the corpus
+profanityURL <- "https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/en"
+
+profanity <- readLines(profanityURL)
+words <- c("the")
+
+library(tau)
+
+#Create function to clean the corpus of unnessary and undesired data
+clean_corpus <- function(corpus){
+        corpus <- tm_map(corpus, content_transformer(replace_abbreviation))
+        corpus <- tm_map(corpus, content_transformer(replace_contraction))
+        corpus <- tm_map(corpus, removePunctuation)
+        corpus <- tm_map(corpus, removeNumbers)
+        corpus <- tm_map(corpus, content_transformer(tolower))
+        corpus <- tm_map(corpus, stripWhitespace)
+        corpus <- tm_map(corpus, removeWords, c(profanity))
+        return(corpus)
+}
+
+#Run the corpus cleaning function on the corpus
+swiftCorpClean <- clean_corpus(swiftCorp)
+
+#Inspect the clean corpus
+swiftCorpClean
+
+#inspect a tweet to see how the cleanup affected the text
+swiftCorpClean[[15]]
+swiftCorpClean[[15]][1]
+swiftCorp[[15]][1]
+```
+
+```{r termMatrixSetup}
+#Create a document term matrix from the data
+swift_dtm <- DocumentTermMatrix(swiftCorpClean)
+#swift_dtm1 <- DocumentTermMatrix(swiftCorp)
+
+#Create a term document matrix from the data
+swift_tdm <- TermDocumentMatrix(swiftCorpClean)
+#swift_tdm1 <- TermDocumentMatrix(swiftCorp)
+
+#which(apply(swift_tdm, 1, sum) > 20)
+#findFreqTerms(swift_tdm, lowfreq = 20)
+
+#Convert the term document matrix to a matrix
+swift_tdm_m <- as.matrix(swift_tdm)
+#swift_tdm_m1 <- as.matrix(swift_tdm1)
+
+#Store the term frequencies from the matrix and store in descending order
+termFreq <- rowSums(swift_tdm_m)
+#termFreq1 <- rowSums(swift_tdm_m1)
+termFreq <- sort(termFreq, decreasing = TRUE)
+
+#termFreq <- subset(termFreq, termFreq >= 20)
+```
+
+```{r unigramAnalysis}
+#Display the top ten terms
+termFreq[1:10]
+#names(termFreq)
+
+#plot the top ten terms as a bar plot
+barplot(termFreq[1:10], col = "tan", las = 2, main = "Swift Top 10 Unigrams")
+```
+
+```{r unigramDendrograms}
+#Convert the top 25 term frequencies to a data frame
+swift_tdm_df <- as.data.frame(termFreq[1:25])
+
+#Store the distance matrix from the data frame
+swift_dist <- dist(swift_tdm_df, method = "euclidean")
+
+#Perform a hierarchichal cluster analysis on the dist results
+swift_hc <- hclust(swift_dist)
+
+#Plot the cluster as a dendrogram
+plot(swift_hc, main = "Swift Unigram Dendrogram")
+
+#Create a more customizable dendrogram
+swift_hcd <- as.dendrogram(swift_hc)
+
+#labels(swift_hcd)
+
+#Add some attributes to highlight important information in the dendrogram
+swift_hcd <- branches_attr_by_labels(swift_hcd, c("will", "can"), "red")
+
+#Plot the customized dendrogram
+plot(swift_hcd, main = "Swift Dendrogram")
+rect.dendrogram(swift_hcd, k = 2, border = "grey50")
+
+```
+
+###Bigram Tokenization
+Bigram analysis
+
+```{r bigram analysis}
+
+tokenizer_bigram <- function(x) 
+  NGramTokenizer(x, Weka_control(min = 2, max = 2))
+
+swift_tdm_bigram <- TermDocumentMatrix(swiftCorpClean, 
+                                       control = list(tokenize = tokenizer_bigram))
+
+swift_tdm_bigram_m <- as.matrix(swift_tdm_bigram)
+
+termFreq_bigram <- rowSums(swift_tdm_bigram_m)
+
+termFreq_bigram <- sort(termFreq_bigram, decreasing = TRUE)
+
+termFreq_bigram[1:10]
+
+barplot(termFreq_bigram[1:10], col = "tan", las = 2, main = "Swift Top 10 Bigrams")
+
+swift_tdm_bigram_df <- as.data.frame(termFreq_bigram[1:25])
+
+swift_dist_bigram <- dist(swift_tdm_bigram_df)
+
+swift_hc_bigram <- hclust(swift_dist_bigram)
+
+plot(swift_hc_bigram, main = "Swift Bigram Dendrogram")
+
+swift_hcd_bigram_dend <- as.dendrogram(swift_hc_bigram)
+
+labels(swift_hcd_bigram_dend)
+
+swift_hcd_bigram_dend <- branches_attr_by_labels(swift_hcd_bigram_dend,
+                                                 c("happy birthday", "i dont"), "red")
+
+
+plot(swift_hcd_bigram_dend, main = "Swift Bigram Dendrogram")
+rect.dendrogram(swift_hcd_bigram_dend, k = 2, border = "grey50")
+```
+
+###Trigram Tokenization
+Trigram analysis
+
+```{r trigram analysis}
+
+tokenizer_trigram <- function(x) 
+  NGramTokenizer(x, Weka_control(min = 3, max = 3))
+
+swift_tdm_trigram <- TermDocumentMatrix(swiftCorpClean, 
+                                       control = list(tokenize = tokenizer_trigram))
+
+swift_tdm_trigram_m <- as.matrix(swift_tdm_trigram)
+
+termFreq_trigram <- rowSums(swift_tdm_trigram_m)
+
+termFreq_trigram <- sort(termFreq_trigram, decreasing = TRUE)
+
+termFreq_trigram[1:10]
+
+barplot(termFreq_trigram[1:10], col = "tan", las = 2, main = "Swift Top 10 trigrams")
+
+swift_tdm_trigram_df <- as.data.frame(termFreq_trigram[1:25])
+
+swift_dist_trigram <- dist(swift_tdm_trigram_df)
+
+swift_hc_trigram <- hclust(swift_dist_trigram)
+
+plot(swift_hc_trigram, main = "Swift trigram Dendrogram")
+
+swift_hcd_trigram_dend <- as.dendrogram(swift_hc_trigram)
+
+labels(swift_hcd_trigram_dend)
+
+swift_hcd_trigram_dend <- branches_attr_by_labels(swift_hcd_trigram_dend,
+                                                 c("i cant wait", "please please please"), "red")
+
+
+plot(swift_hcd_trigram_dend, main = "Swift trigram Dendrogram")
+rect.dendrogram(swift_hcd_trigram_dend, k = 2, border = "grey50")
+
+library(syuzhet)
+sentiments <- get_nrc_sentiment(en_blogs)
+sentimentTotals <- data.frame("count" = colSums(sentiments))
+sentimentTotals$sentiment <- rownames(sentimentTotals)
+rownames(sentimentTotals) <- NULL
+
+ggplot(data=sentimentTotals, aes(x=sentiment, y=count)) +
+    geom_bar(aes(fill=sentiment), stat='identity') +
+    theme_bw() + theme(legend.position = 'none', axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+    ggtitle("Sentiment Counts for Blogs") + xlab("Sentiment") + ylab("Total Count")
+
+```

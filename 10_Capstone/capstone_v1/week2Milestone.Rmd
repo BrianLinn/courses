@@ -1,0 +1,189 @@
+---
+title: "Week 2 Milestone Report"
+author: "Brian Linn"
+date: "May 8, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#Clear the global environment
+remove(list = ls())
+
+#Download if necessary and set to required the libraries needed for the code
+if (!require(tidyverse)) {
+        install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+        require(tidyverse, quietly = TRUE)
+}
+
+if (!require(tm)) {
+        install.packages("tm", repos = "http://cran.us.r-project.org")
+        require(tm, quietly = TRUE)
+}
+
+if (!require(quanteda)) {
+        install.packages("quanteda", repos = "http://cran.us.r-project.org")
+        require(quanteda, quietly = TRUE)
+}
+
+if (!require(stringi)) {
+        install.packages("stringi", repos = "http://cran.us.r-project.org")
+        require(stringi, quietly = TRUE)
+}
+```
+#Milestone Report
+This milestone report intends to provide a basic analysis of the data that will serve as the basis for a predictive application in the future. The analysis begins by importing text files with news. blog and twitter entries. Summary statistics are calculated for each data type before combining the data into a large collection of documents called a corpus. Basic frequency statistics are displayed for the most frequent one, two, and three word combinations - referred to as unigram, bigram, and trigrams. The frequency analysis will serve as the basis for a predictive application to be built later in the capstone project.
+
+##Data Import
+The first step entails reading the data into R for further analysis, and this done by simply reading the lines from each file into memory.
+```{r dataImport, warning = FALSE}
+#Extract the data
+Twitter <- readLines("./data/en_US.twitter.txt")
+Blogs <- readLines("./data/en_US.blogs.txt")
+News <- readLines("./data/en_US.news.txt")
+```
+
+###Initial Statistical Analysis
+In order to gain a little familiarity with the data, a collection of summary statistics is generated. The statistics indicate that the blog entries are the longest and the Twitter entries are the shortest on average.
+```{r initialDataAnalysis}
+#Calculate the total words in each document set
+totWrd <- map_dbl(list(Twitter, Blogs, News), 
+                  function(x){stri_stats_latex(x)[4]})
+
+#Calculate the total line count in each document set
+totLne <- map_dbl(list(Twitter, Blogs, News), 
+                  function(x){stri_stats_general(x)[1]})
+
+#Calculate the average words per entry in each document set
+meanChr <- map_dbl(list(Twitter, Blogs, News),
+                  function(x){mean(stri_count_words(x))})
+
+#Store the names of the files for use in a table
+file <- c("Twitter", "Blogs",  "News")
+
+#Store the summary statistics in a tibble
+sumStats <- tibble('File' = file,
+           'Total Words' = totWrd,
+           'Total Lines' = totLne,
+           'Average Words' = meanChr)
+
+#display the tibble
+sumStats
+```
+
+##Corpus Creation
+Now that the data has been read into memory, and a general familiarity with the data has been established, the data can be combined for a deeper analysis. This step also reduces the number of entries used in the additional analysis as it is not necessary, and a burden on resources, to use all of the data from each source. 
+
+At this point, profane words are also removed and the data is converted to ASCII text to avoid any issues with accented characters.
+```{r corpusCleanupCreation}
+#First the data is sampled to increase performance
+#Store the factor to reduce the file sizes
+redFac <- 100
+
+#Create reduced data sets to use in analysis
+smlTwt <- Twitter[seq(1, length(Twitter), by = redFac)]
+smlBlg <- Blogs[seq(1, length(Blogs), by = redFac)]
+smlNws <- News[seq(1, length(News), by = redFac)]
+
+data <- c(smlTwt, smlBlg, smlNws)
+
+#Remove the accented characters by converting to ASCII text
+data <- data %>% 
+        stri_trans_general("Latin-ASCII")
+
+#Store the URL of profanity list on github
+profanityURL <- "https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/en"
+
+#Store the profane words to use as stopwords for removal
+profanity <- readLines(profanityURL)
+
+#Store the profane words in a reg ex pattern for gsub replacement
+ptnPrf <- paste0("\\b(", paste0(profanity, collapse="|"), ")\\b") 
+
+#convert the data to lowercase to match the profane wordlist
+data <- data %>% char_tolower()
+
+#Remove the profane words from the data
+data <- gsub(ptnPrf, "", data)
+
+#Create the corpus from the data
+crpDta <- corpus(data)
+```
+
+##Tokenizing the Corpus
+Toeknizing refers to breaking up text into tokens or meaningful parts - be that words, phrases, parts of speech, etc. This analysis calcualctes the frequency of a word's occurrence or a group of word's occurring together. Once the ngrams are established, they can be used to display which words or combinations of words are the most frequent.
+
+The document feature matrix in the quanteda package allows for corpus cleaning without creating a separate function, which is a nice improvement over the tm syntax. I chose to clean the corpus for numbers, punctuation, symbols, urls, hypens, and a special set called twitter.
+```{r tokenization}
+#Create document-feature matrices for the various ngrams
+#unigram dfm
+dta1 <- dfm(crpDta, 
+            remove_numbers = TRUE, 
+            remove_punct = TRUE, 
+            remove_symbols = TRUE, 
+            remove_url = TRUE, 
+            remove_hyphens=TRUE, 
+            remove_twitter = TRUE, 
+            ngrams=1)
+
+#Bigram dfm
+dta2 <- dfm(crpDta, 
+            remove_numbers = TRUE, 
+            remove_punct = TRUE, 
+            remove_symbols = TRUE, 
+            remove_url = TRUE, 
+            remove_hyphens=TRUE, 
+            remove_twitter = TRUE, 
+            ngrams=2)
+
+#trigram dfm
+dta3 <- dfm(crpDta, 
+            remove_numbers = TRUE, 
+            remove_punct = TRUE, 
+            remove_symbols = TRUE, 
+            remove_url = TRUE, 
+            remove_hyphens=TRUE, 
+            remove_twitter = TRUE, 
+            ngrams=3)
+
+```
+
+##N-Gram Analysis
+Having established the ngram objects, the most frequent terms or groups of terms are now displayed. This analysis gives a first look into a potential avenue for predicting words from an application.
+```{r ngramAnalysis}
+#Plot the top 10 ngrams of each type
+barplot(topfeatures(dta1), col = "tan", las = 2, main = "Top 10 Unigrams")
+barplot(topfeatures(dta2), col = "blue", las = 2, main = "Top 10 Bigrams")
+barplot(topfeatures(dta3), col = "red", las = 2, main = "Top 10 Trigrams")
+```
+
+```{r sentimentanalysisANDwordClouds, echo = FALSE, warning = FALSE}
+#library(syuzhet)
+#sentiments <- get_nrc_sentiment(data)
+#sentimentTotals <- data.frame("count" = colSums(sentiments))
+#sentimentTotals$sentiment <- rownames(sentimentTotals)
+#rownames(sentimentTotals) <- NULL
+
+#ggplot(data=sentimentTotals, aes(x=sentiment, y=count)) +
+#   geom_bar(aes(fill=sentiment), stat='identity') +
+#   theme_bw() + theme(legend.position = 'none', axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+#    ggtitle("Sentiment Counts for Data") + xlab("Sentiment") + ylab("Total Count")
+
+#wordcloud_dfm<-dfm(data, 
+#                   remove = stopwords('english'), 
+#                   stem = TRUE, 
+#                   remove_numbers = TRUE, 
+#                   remove_punct = TRUE, 
+#                   remove_symbols = TRUE, 
+#                   remove_separators = TRUE, 
+#                   remove_url = TRUE, 
+#                   remove_twitter = TRUE)
+
+#textplot_wordcloud(wordcloud_dfm, 
+#                   max.words = 100, 
+#                   random.order = FALSE, 
+#                   colors = RColorBrewer::brewer.pal(9, 'PuBuGn'))
+```
+##Conculsion
+Having performed the initial analysis of the data, I can now begin to build the predictive part of the assignment. The document feature matrices developed at this point contain the features necessary to implement a predictive application in Shiny. The load times for the data files is slow, and some of the processing steps are as well, so performance will need to be addressed before deploying the final applicaiton.
