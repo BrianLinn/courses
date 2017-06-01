@@ -3,10 +3,10 @@ source("./data/functions/detachAllPackages.R")
 detachAllPackages()
 remove(list = ls())
 
-#Predictor Function
+
 if (!require(tidyverse)) {
         install.packages("tidyverse", repos = "http://cran.us.r-project.org")
-        require(tidyverse, quietly = TRUE)
+        require(tidyverse, warn.conflicts = F)
 }
 
 if (!require(tm)) {
@@ -23,6 +23,7 @@ bigrams <- read_rds("./data/grams/final2.RData")
 trigrams <- read_rds("./data/grams/final3.RData")
 quadgrams <- read_rds("./data/grams/final4.RData")
 
+#Predictor Function
 predictor <- function(textLength,textInput){
         #Edit the text entered by the user to ensure that only three or less terms
         #are passed to the predictor
@@ -42,8 +43,8 @@ predictor <- function(textLength,textInput){
         }
         
         #Use with Bigrams
-        #If word count is not greater than three or equal to 2 (so 1) than use NA for
-        #the first two grams and the input as the second gram
+        #If word count is not greater than three or equal to 2 (so 1) then use NA for
+        #the first two grams and the input as the third gram
         else {
                 textInput <- c(NA,NA,textInput)
         }
@@ -51,19 +52,19 @@ predictor <- function(textLength,textInput){
         #First try entering the text into the quadgram 
         #If there is an NA in one of the three text fields being passed the 
         #function will result in an NA
-        prediction <- as.character(myquads[myquads$Unigram == textInput[1] & 
-                                                 myquads$Bigram == textInput[2] & 
-                                                 myquads$Trigram == textInput[3],][1,]$Quadgram)
+        prediction <- as.character(quadgrams[quadgrams$Unigram == textInput[1] & 
+                                                 quadgrams$Bigram == textInput[2] & 
+                                                 quadgrams$Trigram == textInput[3],][1,]$Quadgram)
 
         #If the function resulted in an NA using the quadgrams, then try the trigrams. 
         #This too will result in NA if NA is passed from the input
         if(is.na(prediction)) {
-                prediction <- as.character(mytris[mytris$Unigram == textInput[2] &
-                                                        mytris$Bigram == textInput[3],][1,]$Trigram)
+                prediction <- as.character(trigrams[trigrams$Unigram == textInput[2] &
+                                                        trigrams$Bigram == textInput[3],][1,]$Trigram)
                 
                 #Finally resort to the bigrams if only one word was passed as input
                 if(is.na(prediction)) {
-                        prediction <- as.character(mybigs[mybigs$Unigram==textInput[3],][1,]$Bigram)
+                        prediction <- as.character(bigrams[bigrams$Unigram==textInput[3],][1,]$Bigram)
                 }
         }
         
