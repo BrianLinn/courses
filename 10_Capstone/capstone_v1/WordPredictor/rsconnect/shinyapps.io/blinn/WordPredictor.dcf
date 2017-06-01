@@ -1,0 +1,10 @@
+name: WordPredictor
+title: WordPredictor
+account: blinn
+server: shinyapps.io
+appId: 185541
+bundleId: 849572
+url: https://blinn.shinyapps.io/WordPredictor/
+when: 1496353388.87874
+asMultiple: FALSE
+asStatic: FALSE

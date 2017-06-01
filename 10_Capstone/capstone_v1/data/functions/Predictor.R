@@ -14,8 +14,15 @@ if (!require(tm)) {
         require(tm, quietly = TRUE)
 }
 
+bigrams <- read_rds("final2.RData")
+trigrams <- read_rds("final3.RData")
+quadgrams <- read_rds("final4.RData")
+
 #Predictor Function
 predictor <- function(textLength,textInput){
+        bigrams <- read_rds("final2.RData")
+        trigrams <- read_rds("final3.RData")
+        quadgrams <- read_rds("final4.RData")
         #Edit the text entered by the user to ensure that only three or less terms
         #are passed to the predictor
         

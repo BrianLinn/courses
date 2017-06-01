@@ -3,6 +3,21 @@ if (!require(shiny)) {
         require(shiny, quietly = TRUE)
 }
 
+if (!require(tidyverse)) {
+        install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+        require(tidyverse, warn.conflicts = F)
+}
+
+if (!require(tm)) {
+        install.packages("tm", repos = "http://cran.us.r-project.org")
+        require(tm, quietly = TRUE)
+}
+
+#Load primary data
+bigrams <- read_rds("final2.RData")
+trigrams <- read_rds("final3.RData")
+quadgrams <- read_rds("final4.RData")
+
 #Create a shinyUI to allow users to enter the data and see the predicted word
   
   shinyUI(navbarPage("Word Predictor",
@@ -25,15 +40,14 @@ if (!require(shiny)) {
                                                      "Word Predictor",
                                                      textInput(inputId = "screenInput",
                                                                label = "Enter text below:",
-                                                               value = " ",
                                                                width = validateCssUnit("80%"),
-                                                               placeholder = "Enter text in the box and click submit."
-                                                               ),
-                                                     submitButton("Submit")
+                                                               placeholder = "Enter text in the box."
+                                                               )
                                                      ),
                                               mainPanel(
                                                       h4("Predicted Word"),
                                                       textOutput("predWord")
+                                                      
                                               )
                                               )
                                       )

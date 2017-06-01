@@ -17,7 +17,15 @@ if (!require(stylo)) {
         require(stylo, quietly = TRUE)
 }
 
+#Load primary data
+bigrams <- read_rds("final2.RData")
+trigrams <- read_rds("final3.RData")
+quadgrams <- read_rds("final4.RData")
+
 cleanData <- function(userInput){
+        bigrams <- read_rds("final2.RData")
+        trigrams <- read_rds("final3.RData")
+        quadgrams <- read_rds("final4.RData")
         textInput <- userInput %>%
                 tolower() %>% 
                 removePunctuation() %>% 
