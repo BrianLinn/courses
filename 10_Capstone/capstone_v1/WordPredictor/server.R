@@ -42,5 +42,5 @@ shinyServer(function(input, output){
                                      textInput = textInput)
         })
         
-        output$prediction <- renderText(predWord())
+        output$predWord <- renderText(predWord())
 })

@@ -25,15 +25,19 @@ if (!require(shiny)) {
                                                      "Word Predictor",
                                                      textInput(inputId = "screenInput",
                                                                label = "Enter text below:",
-                                                               value = "",
-                                                               width = validateCssUnit("50%"),
+                                                               value = " ",
+                                                               width = validateCssUnit("80%"),
                                                                placeholder = "Enter text in the box and click submit."
                                                                ),
-                                                     submitButton("Submit"),
-                                                     textOutput("predWord")
-                                                     )
+                                                     submitButton("Submit")
+                                                     ),
+                                              mainPanel(
+                                                      h4("Predicted Word"),
+                                                      textOutput("predWord")
+                                              )
                                               )
                                       )
                               )
-                     )
+                    
           )
+  )
