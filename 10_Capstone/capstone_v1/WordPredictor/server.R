@@ -1,38 +1,46 @@
 #Clear the global environment and detach all packages
-source("./data/functions/detachAllPackages.R")
+source("detachAllPackages.R")
 detachAllPackages()
 remove(list = ls())
-source("Predictor.R")
-getwd()
-#Download if necessary and set to required the libraries needed for the code
+
 if (!require(tidyverse)) {
         install.packages("tidyverse", repos = "http://cran.us.r-project.org")
-        require(tidyverse, quietly = TRUE)
+        require(tidyverse, warn.conflicts = F)
+}
+
+if (!require(tm)) {
+        install.packages("tm", repos = "http://cran.us.r-project.org")
+        require(tm, quietly = TRUE)
 }
 
 if (!require(shiny)) {
-        install.packages("shiny", repos = "http://cran.us.r-project.org")
+        install.packages("tm", shiny = "http://cran.us.r-project.org")
         require(shiny, quietly = TRUE)
 }
 
 #Load primary data
-bigrams <- read_rds("./data/grams/final2.RData")
-trigrams <- read_rds("./data/grams/final3.RData")
-quadgrams <- read_rds("./data/grams/final4.RData")
+bigrams <- read_rds("final2.RData")
+trigrams <- read_rds("final3.RData")
+quadgrams <- read_rds("final4.RData")
 
+#Load in the requisite functions
 
-# Define server logic required to draw a histogram
-shinyServer(function(input, output) {
-   
-  output$distPlot <- renderPlot({
-    
-    # generate bins based on input$bins from ui.R
-    x    <- faithful[, 2] 
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-    
-    # draw the histogram with the specified number of bins
-    hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    
-  })
-  
+#User Input Transformer - used to create textInput and textLength
+source("transformUserInput.R")
+
+#Word Predictor
+source("Predictor.R")
+
+#Create the Shiny server function that will return the predicted word
+shinyServer(function(input, output){
+        #Create a reactive function that looks for changes in the screen input
+        predWord <- reactive({
+                userInput <- input$screenInput
+                textInput <- cleanData(userInput = userInput)
+                textLength <- length(textInput)
+                predict <- predictor(textLength = textLength,
+                                     textInput = textInput)
+        })
+        
+        output$prediction <- renderText(predWord())
 })

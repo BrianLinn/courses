@@ -1,9 +1,7 @@
 #Clear the global environment and detach all packages
-source("./data/functions/detachAllPackages.R")
-detachAllPackages()
-remove(list = ls())
-
-
+#source("./data/functions/detachAllPackages.R")
+#detachAllPackages()
+#remove(list = ls())
 if (!require(tidyverse)) {
         install.packages("tidyverse", repos = "http://cran.us.r-project.org")
         require(tidyverse, warn.conflicts = F)
@@ -26,10 +24,6 @@ cleanData <- function(userInput){
                 removeNumbers() %>% 
                 stripWhitespace() %>% 
                 txt.to.words.ext()
-        
+        #Return the clean text
         print(textInput)
 }
-
-textInput <- cleanData(userInput = userInput)
-
-textLength <- length(textInput)
